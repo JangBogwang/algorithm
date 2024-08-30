@@ -1,20 +1,25 @@
+package algorithm;
+
 import java.util.Scanner;
 
-class swea1217_거듭제곱 {
+public class swea1217_거듭제곱 {
 	public static void main(String[] args) {
-		Scanner c = new Scanner(System.in);
-		StringBuilder s = new StringBuilder();
-		for(int t = 1; t<= 10; t++) {
-			int n = c.nextInt();
-			int a = c.nextInt();
-			int b = c.nextInt();
-			s.append("#"+n+" "+m(a,b)+"\n");
+		Scanner sc = new Scanner(System.in);
+		StringBuilder sb = new StringBuilder();
+		for(int t = 1; t <= 10; t++) {
+			int a = sc.nextInt();
+			int b = sc.nextInt();
+			int c = sc.nextInt();
+			int result = pow(b,c);
+			sb.append("#"+t+" "+result+"\n");
 		}
-		System.out.print(s);
+		System.out.print(sb);
 	}
 	
-	static int m(int n, int l) {
-		if(l==1) return n;
-		else return n*m(n,l-1);
+	static int pow(int a, int b) {
+		if(b > 1) {
+			return a * pow(a,b-1);
+		}
+		else return a;
 	}
 }
