@@ -3,9 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class BOJ16562_친구비 {
-	static int[] cost;
-	static int[] parent;
+public class BOJ16562_친구비{
+	static int[] cost, parent;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
@@ -14,7 +13,7 @@ public class BOJ16562_친구비 {
 		int k = Integer.parseInt(st.nextToken());
 		cost = new int[n+1];
 		parent = new int[n+1];
-		long result = 0;
+		int result = 0;
 	
 		st = new StringTokenizer(br.readLine());
 		for(int i = 1; i <= n; i++) {
@@ -29,9 +28,8 @@ public class BOJ16562_친구비 {
 			union(v, w);	
 		}
 		
-		for(int i = 1; i <= n; i++) {
-			if(parent[i] == i) result += (long)cost[i];
-		}
+		for(int i = 1; i <= n; i++) 
+			if(parent[i] == i) result += cost[i];
 		
 		if(result > k) System.out.print("Oh no");
 		else System.out.print(result);
@@ -41,18 +39,14 @@ public class BOJ16562_친구비 {
 		int nX = find(x);
 		int nY = find(y);
 		
-		if(nX == nY) return;
-		
-		if(cost[nX] < cost[nY])
-			parent[nY] = nX;
-		else
-			parent[nX] = nY;
+		if(nX != nY) {
+			if(cost[nX] < cost[nY]) parent[nY] = nX;
+			else parent[nX] = nY;
+		}
 	}
 	
 	static int find(int now) {
-		if(parent[now]!=now)
-			return find(parent[now]);
-		else
-			return now;
+		if(parent[now]!=now) return parent[now] = find(parent[now]);
+		else return now;
 	}
 }
