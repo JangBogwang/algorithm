@@ -1,83 +1,90 @@
-package algorithm;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class BOJ13308_주유소 {
 	
-	static ArrayList<long[]>[] al;
-	static Queue<long[]> q;
-	static long[] costs;
-	static long[]dp;
-	static long[] visited;
+	static class Node implements Comparable<Node>{
+		int index;
+		long cost;
+		int minFuelCost;
+		
+		public Node(int index, long cost, int minFuelCost){
+			this.index = index;
+			this.cost = cost;
+			this.minFuelCost = minFuelCost;
+		}
+		
+		@Override
+		public int compareTo(Node o){
+			return Long.compare(this.cost, o.cost);
+		}
+	}
+	
+	static int n, m;
+	static int[] oil;
+	static long[][] minFuelCost;
+	static List<Node>[] graph;
+	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		int n = Integer.parseInt(st.nextToken());
-		int m = Integer.parseInt(st.nextToken());
-		costs = new long[n+1];
-		dp = new long[n+1];
+		n = Integer.parseInt(st.nextToken());
+		m = Integer.parseInt(st.nextToken());
+		
+		oil = new int[n+1];
+		minFuelCost = new long[n+1][10001];
+		graph = new ArrayList[n+1];
 		
 		st = new StringTokenizer(br.readLine());
-		for(int i = 1; i <= n; i++) 
-			costs[i] = Long.parseLong(st.nextToken());
-		costs[n] = 0;
-		
-		al = new ArrayList[n+1];
-		Arrays.fill(dp, Long.MAX_VALUE);
-		dp[1] = 0;
-	
-
-		for(int i = 0; i <= n; i++) {
-			al[i] = new ArrayList<>();
+		for(int i = 1; i <= n; i++) {
+			oil[i] = Integer.parseInt(st.nextToken());
+			graph[i] = new ArrayList<>();
+			Arrays.fill(minFuelCost[i], Long.MAX_VALUE);
 		}
 		
-		
-		for(int i = 1; i <= m; i++) {
+		for(int i = 0; i < m; i++) {
 			st = new StringTokenizer(br.readLine());
-			int x = Integer.parseInt(st.nextToken());
-			int y = Integer.parseInt(st.nextToken());
+			int u = Integer.parseInt(st.nextToken());
+			int v = Integer.parseInt(st.nextToken());
 			int w = Integer.parseInt(st.nextToken());
-			al[x].add(new long[] {y, w});
-			al[y].add(new long[] {x, w});
+			graph[u].add(new Node(v, w, 0));
+			graph[v].add(new Node(u, w, 0));
 		}
 		
-		q = new LinkedList<>();
-		
-		q.add(new long[] {1, costs[1]});
-		while(!q.isEmpty()) {
-			long[] now = q.poll();
-			visited = new long[n+1];
-			Arrays.fill(visited, Long.MAX_VALUE);
-			int x = (int)now[0];
-			visited[x] = 0;
-			search(now, dp[x],0);
-		}
-		
-		System.out.print(dp[n]);
+		System.out.print(dijkstra(1, n));
 	}
 	
-	static void search(long[] now, long prev, long sum) {
-		int x = (int)now[0];
-		long cost = now[1];
-		for(long[] temp: al[x]) {
-			int x2 = (int)temp[0];
-			long w = temp[1];
-			if(visited[x2] > sum+w){
-				visited[x2] = sum+w;
-				if(costs[x2] >= cost) {
-					search(new long[] {x2, cost}, prev, sum+w);
-				}else if(costs[x2] < cost&&dp[x2] > prev+(sum+w)*cost) {
-					dp[x2] = prev+(sum+w)*cost;
-					q.add(new long[] {x2, costs[x2]});
-				}	
+	static long dijkstra(int s, int e) {
+		long result = 0; 
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		pq.add(new Node(s, 0, oil[s]));
+		minFuelCost[s][oil[s]] = 0;
+		while(!pq.isEmpty()) {
+			Node now = pq.poll();
+			if(now.index == e) {
+				return now.cost;
+			}
+			if (now.cost > minFuelCost[now.index][now.minFuelCost]) continue;
+			
+			for(Node x: graph[now.index]) {
+                int nextFuelCost = Math.min(now.minFuelCost, oil[x.index]);
+                long nextCost = now.cost + (long) x.cost * now.minFuelCost;
+                
+                if (nextCost < minFuelCost[x.index][nextFuelCost]) {
+                    minFuelCost[x.index][nextFuelCost] = nextCost;
+                    pq.add(new Node(x.index, nextCost, nextFuelCost));
+                }
 			}
 		}
+		
+		return -1;
 	}
+	
+	
 }
